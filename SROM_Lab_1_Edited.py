@@ -1,0 +1,139 @@
+from math import ceil
+
+my_num_1 = str(input())
+my_num_2 = str(input())
+#k = int(input(), 16)
+NUM_LEN = 128
+
+def convert_hex_to_list(number):
+    num_in_list = [0]*NUM_LEN
+    if (len(number) > NUM_LEN):
+        return 0
+    else:
+        for i in range(len(number)):
+            num_in_list[i] = int(number[len(number)-i-1], 16)
+        return num_in_list
+    
+def reverse_convert_hex_to_string(number):
+    string = map(hex,number)
+    my_list_1 = list(string)
+    for i in range(len(my_list_1)):
+        my_list_1[i] = my_list_1[i].replace('0x','')
+    str_1 = ''.join(my_list_1)
+    str_2 = str_1[::-1]
+    return str_2
+    
+t1 = convert_hex_to_list(my_num_1)
+t2 = convert_hex_to_list(my_num_2)
+
+def BigAddition(res_1 , res_2):
+    carry = 0
+    C = [0]*NUM_LEN
+    for i in range(NUM_LEN):
+        temp = res_1[i] + res_2[i] + carry
+        C[i] = temp & (15)
+        carry = temp >> 4
+    return C, carry
+
+def BigSub(res_1, res_2):
+    B = [0]*NUM_LEN
+    borrow = 0
+    for i in range (NUM_LEN):
+        temp = res_1[i] - res_2[i] - borrow
+        if (temp >= 0):
+            B[i] = temp
+            borrow = 0
+        else:
+            B[i] = 16 + temp
+            borrow = 1
+            
+    return B, borrow
+
+def BigComp(res_1, res_2):
+    i = len(res_1) - 1
+    while (i >= 0) and (res_1[i] == res_2[i]):
+        i = i - 1
+        
+    if i == -1 :
+        return 0
+    else:
+        if res_1[i] > res_2[i]:
+            return 1
+        else:
+            return -1
+
+bool = BigComp(t1,t2)
+        
+def BigOneMulDigit (res_1,b): 
+    carry = 0
+    A = [0]*NUM_LEN
+    for i in range (NUM_LEN):
+        temp = res_1[i]*b + carry
+        A[i] = temp & (15)
+        carry = temp >> 4
+    return A
+
+def LongShiftDigitsToHigh(res_1, m):
+    res_2 = [0]*NUM_LEN
+    for i in range(NUM_LEN - m):
+        res_2[i+m] = res_1[i]
+    return res_2
+    
+def BigMul(res_1, res_2):
+    C = [0]*NUM_LEN
+    for i in range(NUM_LEN):
+        temp = BigOneMulDigit(res_1, res_2[i])
+        temp = LongShiftDigitsToHigh(temp, i)
+        C,_ = BigAddition (C,temp)
+    return C
+
+def GetMeBitFromHex(num_in_hex, n):
+    x = n / 4
+    j = ceil(x) - 1
+    i = n % 4
+    t = num_in_hex[j]
+    return (t >> i) & 1  
+
+def BigPower(res_1,res_2): #дописать вытягивание и-ого бита из хекса , сделать перевод массива хекса в двоичный массив
+    C = [0]*NUM_LEN
+    C[0] = 1
+    for i in range(NUM_LEN):
+        if GetMeBitFromHex(res_2, i) == 1:
+            C = BigMul(C,res_1)
+        res_1 = BigMul(res_1,res_1)  
+    return C
+
+#def BigDev(res_1, res_2):
+    
+
+#def BigPowerWindow(res_1,res_2):
+#     C = [0]*NUM_LEN
+#     C[0] = 1
+#     D = [0]*NUM_LEN
+#     B = [0]*NUM_LEN
+#     B[0] = 1
+#     D[0] = B
+#     D[1] = res_1
+#     for i in range(15, 2):
+#         D[i] = BigMul(D[i-1], res_1)
+#     for i in range(NUM_LEN - 1, 0):
+#         C = BigMul(C, D[res_2[i]])
+#         if i!=0:
+#                 C = BigMul(BigMul(BigMul((BigMul(C,C),C),C),C),C)
+#   return C 
+X1,_ = BigAddition(t1,t2)
+Y1 = reverse_convert_hex_to_string(X1)
+X2,_ = BigSub(t1,t2)
+Y2 = reverse_convert_hex_to_string(X2)
+Y3 = X3_bool = BigComp(t1,t2)
+X4 = BigMul(t1,t2)
+Y4 = reverse_convert_hex_to_string(X4)
+          
+print("Result of addition is:")
+print(Y1)
+print("Result of subtraction is:")
+print(Y2)
+print("Result of comprassion is:")
+print(Y3)
+print("Result of multiplication is:")
+print(Y4)
